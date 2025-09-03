@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "ts-node src/index.ts",
+    "dev": "ts-node-dev src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -12,10 +13,14 @@
   "dependencies": {
     "@qdrant/js-client-rest": "^1.2.0",
     "body-parser": "^2.2.0",
+    "cheerio": "^1.1.2",
     "express": "^5.1.0",
+    "gpt-3-encoder": "^1.1.4",
     "gray-matter": "^4.0.3",
+    "node-fetch": "^3.3.2",
     "ollama": "^0.5.17",
     "qdrant-client": "^0.0.1",
+    "ts-node-dev": "^2.0.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

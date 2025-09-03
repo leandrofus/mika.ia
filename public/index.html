@@ -1,43 +1,123 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>RAG Test</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 40px; }
-    input, select, textarea { width: 100%; padding: 8px; margin: 8px 0; }
-    button { padding: 10px 20px; }
-    pre { background: #f4f4f4; padding: 10px; white-space: pre-wrap; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 40px;
+    }
+
+    .form-section,
+    .answer-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      white-space: pre-wrap;
+      border-radius: 5px;
+    }
+
+    #loading {
+      color: blue;
+      font-weight: bold;
+      display: none;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      grid-column: span 2;
+    }
   </style>
 </head>
+
 <body>
-  <h1>MIKA.IA </h1>
+  <div class="container">
+    <h1>MIKA.IA</h1>
 
-  <label>Tag Obsidian:</label>
-  <input type="text" id="tag" placeholder="Ej: ia">
+    <!-- Columna izquierda -->
+    <div class="form-section">
+      <label>Tag Obsidian:</label>
+      <input type="text" id="tag" placeholder="Ej: ia">
 
-  <label>Pregunta:</label>
-  <textarea id="query" rows="4" placeholder="Escribe tu consulta..."></textarea>
+      <label>Pregunta:</label>
+      <textarea id="query" rows="6" placeholder="Escribe tu consulta..."></textarea>
 
-  <button id="askBtn">Ask MIKA</button>
+      <button id="askBtn">Ask MIKA</button>
+    </div>
 
-  <h2>Respuesta:</h2>
-  <pre id="answer"></pre>
+    <!-- Columna derecha -->
+    <div class="answer-section">
+      <p id="loading">⏳ Procesando, espera...</p>
+
+      <h2>Respuesta:</h2>
+      <pre id="answer"></pre>
+    </div>
+  </div>
 
   <script>
-    document.getElementById("askBtn").addEventListener("click", async () => {
-      const tag = document.getElementById("tag").value;
-      const query = document.getElementById("query").value;
+    const askBtn = document.getElementById("askBtn");
+    const tagInput = document.getElementById("tag");
+    const queryInput = document.getElementById("query");
+    const answerEl = document.getElementById("answer");
+    const loadingEl = document.getElementById("loading");
 
-      const res = await fetch("/rag", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tag, query })
-      });
+    askBtn.addEventListener("click", async () => {
+      const tag = tagInput.value.trim();
+      const query = queryInput.value.trim();
 
-      const data = await res.json();
-      document.getElementById("answer").textContent = data.answer || data.error;
+      if (!query) {
+        alert("Por favor, ingresa una pregunta.");
+        return;
+      }
+
+      loadingEl.style.display = "block";
+      answerEl.textContent = "";
+
+      try {
+        const res = await fetch("/rag", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tag, query })
+        });
+
+        if (!res.ok) throw new Error("Error en la petición: " + res.statusText);
+
+        const data = await res.json();
+
+        const { title, content } = data.answer || {};
+        answerEl.textContent = `Pregunta: ${title}\n\nRespuesta:\n${content}\n\n---\nPrompt usado:\n${data.prompt}`;
+      } catch (err) {
+        answerEl.textContent = "⚠️ Error: " + err.message;
+      } finally {
+        loadingEl.style.display = "none";
+      }
     });
   </script>
 </body>
+
 </html>

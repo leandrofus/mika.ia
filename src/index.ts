@@ -1,8 +1,9 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { initCollection, insertNotes, ragQuery } from "./rag";
+import { initCollection, insertNotes } from "./rag";
 import { loadNotesByTag } from "./obsidian";
 import path from "path";
+import { ragQuery } from "./ragQuery";
 
 // Servir archivos estáticos
 const app = express();
@@ -22,8 +23,7 @@ app.post("/rag", async (req, res) => {
 
     // Ejecutar RAG
     const answer = await ragQuery(query);
-
-    res.json({ answer });
+    res.json(answer );
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error procesando consulta" });
